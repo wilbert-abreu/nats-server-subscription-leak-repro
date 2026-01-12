@@ -1,5 +1,7 @@
 # NATS OrderedConsumer Subscription Leak Reproduction
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/wilbert-abreu/nats-server-subscription-leak-repro)
+
 Reproduces a subscription accumulation issue when using JetStream `OrderedConsumer` with high churn in clustered NATS environments.
 
 ## The Issue

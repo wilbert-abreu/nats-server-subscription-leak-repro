@@ -55,8 +55,8 @@ Subscription count should remain stable over time when OrderedConsumers are bein
 ### 1. Clone and start the reproduction environment
 
 ```bash
-git clone [repo]
-cd scripts/subscription-leak-repro
+git clone https://github.com/wilbert-abreu/nats-server-subscription-leak-repro.git
+cd nats-server-subscription-leak-repro
 docker compose up -d --build
 ```
 

@@ -50,10 +50,11 @@ The reproduction environment mirrors a production setup:
 
 ## Quick Start
 
-### 1. Start the Environment
+### 1. Clone and Start the Environment
 
 ```bash
-cd scripts/subscription-leak-repro
+git clone https://github.com/wilbert-abreu/nats-server-subscription-leak-repro.git
+cd nats-server-subscription-leak-repro
 docker compose up -d --build
 ```
 
