@@ -1,0 +1,495 @@
+services:
+  # ============================================
+  # CLUSTER A (simulates IT Hub) - 5 nodes
+  # ============================================
+  nats-0:
+    image: nats:2.12.3-alpine
+    container_name: nats-0
+    command: >
+      -c /etc/nats/nats.conf
+      --name nats-0
+      --cluster_name cluster-a
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-1:6222,nats://nats-2:6222,nats://nats-3:6222,nats://nats-4:6222
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+      - "7222:7222"
+    volumes:
+      - ./nats-gw-a.conf:/etc/nats/nats.conf:ro
+      - nats-0-data:/data
+    networks:
+      - nats-cluster
+
+  nats-1:
+    image: nats:2.12.3-alpine
+    container_name: nats-1
+    command: >
+      -c /etc/nats/nats.conf
+      --name nats-1
+      --cluster_name cluster-a
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-0:6222,nats://nats-2:6222,nats://nats-3:6222,nats://nats-4:6222
+    ports:
+      - "4223:4222"
+      - "8223:8222"
+    volumes:
+      - ./nats-gw-a.conf:/etc/nats/nats.conf:ro
+      - nats-1-data:/data
+    networks:
+      - nats-cluster
+
+  nats-2:
+    image: nats:2.12.3-alpine
+    container_name: nats-2
+    command: >
+      -c /etc/nats/nats.conf
+      --name nats-2
+      --cluster_name cluster-a
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-0:6222,nats://nats-1:6222,nats://nats-3:6222,nats://nats-4:6222
+    ports:
+      - "4224:4222"
+      - "8224:8222"
+    volumes:
+      - ./nats-gw-a.conf:/etc/nats/nats.conf:ro
+      - nats-2-data:/data
+    networks:
+      - nats-cluster
+
+  nats-3:
+    image: nats:2.12.3-alpine
+    container_name: nats-3
+    command: >
+      -c /etc/nats/nats.conf
+      --name nats-3
+      --cluster_name cluster-a
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-0:6222,nats://nats-1:6222,nats://nats-2:6222,nats://nats-4:6222
+    ports:
+      - "4225:4222"
+      - "8225:8222"
+    volumes:
+      - ./nats-gw-a.conf:/etc/nats/nats.conf:ro
+      - nats-3-data:/data
+    networks:
+      - nats-cluster
+
+  nats-4:
+    image: nats:2.12.3-alpine
+    container_name: nats-4
+    command: >
+      -c /etc/nats/nats.conf
+      --name nats-4
+      --cluster_name cluster-a
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-0:6222,nats://nats-1:6222,nats://nats-2:6222,nats://nats-3:6222
+    ports:
+      - "4226:4222"
+      - "8226:8222"
+    volumes:
+      - ./nats-gw-a.conf:/etc/nats/nats.conf:ro
+      - nats-4-data:/data
+    networks:
+      - nats-cluster
+
+  # ============================================
+  # CLUSTER B (simulates OT Hub) - 5 nodes with gateway
+  # ============================================
+  gw-b-0:
+    image: nats:2.12.3-alpine
+    container_name: gw-b-0
+    command: >
+      -c /etc/nats/nats.conf
+      --name gw-b-0
+      --cluster_name cluster-b
+      --cluster nats://0.0.0.0:6222
+      --routes nats://gw-b-1:6222,nats://gw-b-2:6222,nats://gw-b-3:6222,nats://gw-b-4:6222
+    ports:
+      - "5222:4222"
+      - "9222:8222"
+    volumes:
+      - ./nats-gw-b.conf:/etc/nats/nats.conf:ro
+      - gw-b-0-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+
+  gw-b-1:
+    image: nats:2.12.3-alpine
+    container_name: gw-b-1
+    command: >
+      -c /etc/nats/nats.conf
+      --name gw-b-1
+      --cluster_name cluster-b
+      --cluster nats://0.0.0.0:6222
+      --routes nats://gw-b-0:6222,nats://gw-b-2:6222,nats://gw-b-3:6222,nats://gw-b-4:6222
+    ports:
+      - "5223:4222"
+      - "9223:8222"
+    volumes:
+      - ./nats-gw-b.conf:/etc/nats/nats.conf:ro
+      - gw-b-1-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+
+  gw-b-2:
+    image: nats:2.12.3-alpine
+    container_name: gw-b-2
+    command: >
+      -c /etc/nats/nats.conf
+      --name gw-b-2
+      --cluster_name cluster-b
+      --cluster nats://0.0.0.0:6222
+      --routes nats://gw-b-0:6222,nats://gw-b-1:6222,nats://gw-b-3:6222,nats://gw-b-4:6222
+    ports:
+      - "5224:4222"
+      - "9224:8222"
+    volumes:
+      - ./nats-gw-b.conf:/etc/nats/nats.conf:ro
+      - gw-b-2-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+
+  gw-b-3:
+    image: nats:2.12.3-alpine
+    container_name: gw-b-3
+    command: >
+      -c /etc/nats/nats.conf
+      --name gw-b-3
+      --cluster_name cluster-b
+      --cluster nats://0.0.0.0:6222
+      --routes nats://gw-b-0:6222,nats://gw-b-1:6222,nats://gw-b-2:6222,nats://gw-b-4:6222
+    ports:
+      - "5225:4222"
+      - "9225:8222"
+    volumes:
+      - ./nats-gw-b.conf:/etc/nats/nats.conf:ro
+      - gw-b-3-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+
+  gw-b-4:
+    image: nats:2.12.3-alpine
+    container_name: gw-b-4
+    command: >
+      -c /etc/nats/nats.conf
+      --name gw-b-4
+      --cluster_name cluster-b
+      --cluster nats://0.0.0.0:6222
+      --routes nats://gw-b-0:6222,nats://gw-b-1:6222,nats://gw-b-2:6222,nats://gw-b-3:6222
+    ports:
+      - "5226:4222"
+      - "9226:8222"
+    volumes:
+      - ./nats-gw-b.conf:/etc/nats/nats.conf:ro
+      - gw-b-4-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+
+  # ============================================
+  # LEAF NODES (connect to Cluster A)
+  # ============================================
+  leaf-1:
+    image: nats:2.12.3-alpine
+    container_name: leaf-1
+    command: >
+      -c /etc/nats/leaf.conf
+      --name leaf-1
+    volumes:
+      - ./leaf.conf:/etc/nats/leaf.conf:ro
+      - leaf-1-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+
+  leaf-2:
+    image: nats:2.12.3-alpine
+    container_name: leaf-2
+    command: >
+      -c /etc/nats/leaf.conf
+      --name leaf-2
+    volumes:
+      - ./leaf.conf:/etc/nats/leaf.conf:ro
+      - leaf-2-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+
+  leaf-3:
+    image: nats:2.12.3-alpine
+    container_name: leaf-3
+    command: >
+      -c /etc/nats/leaf.conf
+      --name leaf-3
+    volumes:
+      - ./leaf.conf:/etc/nats/leaf.conf:ro
+      - leaf-3-data:/data
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+
+  # ============================================
+  # PUBLISHER (via leaf node)
+  # ============================================
+  leaf-publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: leaf-publisher
+    environment:
+      - NATS_URL=nats://leaf-1:4222
+      - MODE=publisher
+    networks:
+      - nats-cluster
+    depends_on:
+      - leaf-1
+      - leaf-2
+      - leaf-3
+
+  # ============================================
+  # CONSUMER SIMULATORS (connect to Cluster A)
+  # Test Mode: jetstream (default), request-reply, leaf-client, conn-churn
+  # ============================================
+  consumer-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: consumer-simulator
+    environment:
+      - NATS_URL=nats://nats-0:4222
+      - NATS_USER=acc
+      - NATS_PASS=acc
+      - STREAM_NAME=events
+      - NUM_CONSUMERS=10
+      - CONSUMER_LIFETIME_MS=5000
+      - RECONNECT_DELAY_MS=100
+      - TEST_MODE=jetstream
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+      - nats-3
+      - nats-4
+    restart: unless-stopped
+
+  consumer-simulator-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: consumer-simulator-2
+    environment:
+      - NATS_URL=nats://nats-1:4222
+      - NATS_USER=acc
+      - NATS_PASS=acc
+      - STREAM_NAME=events
+      - NUM_CONSUMERS=10
+      - CONSUMER_LIFETIME_MS=5000
+      - RECONNECT_DELAY_MS=100
+      - TEST_MODE=jetstream
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+      - nats-3
+      - nats-4
+    restart: unless-stopped
+
+  consumer-simulator-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: consumer-simulator-3
+    environment:
+      - NATS_URL=nats://nats-2:4222
+      - NATS_USER=acc
+      - NATS_PASS=acc
+      - STREAM_NAME=events
+      - NUM_CONSUMERS=10
+      - CONSUMER_LIFETIME_MS=5000
+      - RECONNECT_DELAY_MS=100
+      - TEST_MODE=jetstream
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+      - nats-3
+      - nats-4
+    restart: unless-stopped
+
+  # ============================================
+  # CONNECTION CHURN SIMULATOR
+  # Tests ungraceful disconnects leaving orphan subscriptions
+  # ============================================
+  conn-churn-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: conn-churn-simulator
+    environment:
+      - NATS_URL=nats://nats-0:4222
+      - NATS_USER=acc
+      - NATS_PASS=acc
+      - NUM_CONSUMERS=20
+      - CONSUMER_LIFETIME_MS=3000
+      - RECONNECT_DELAY_MS=500
+      - TEST_MODE=conn-churn
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - nats-1
+      - nats-2
+      - nats-3
+      - nats-4
+    restart: unless-stopped
+
+  # ============================================
+  # LEAF CLIENT SIMULATOR
+  # Simulates leaf node clients with subscription churn
+  # ============================================
+  leaf-client-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: leaf-client-simulator
+    environment:
+      - NATS_URL=nats://leaf-1:4222
+      - NATS_USER=zone1
+      - NATS_PASS=zone
+      - NUM_CONSUMERS=15
+      - CONSUMER_LIFETIME_MS=5000
+      - RECONNECT_DELAY_MS=200
+      - TEST_MODE=leaf-client
+    networks:
+      - nats-cluster
+    depends_on:
+      - leaf-1
+      - leaf-2
+      - leaf-3
+    restart: unless-stopped
+
+  # ============================================
+  # CONSUMER SIMULATORS (connect to Cluster B via gateway)
+  # This simulates clients on the OT side creating ephemeral consumers
+  # ============================================
+  consumer-simulator-gw-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: consumer-simulator-gw-1
+    environment:
+      - NATS_URL=nats://gw-b-0:4222
+      - NATS_USER=acc
+      - NATS_PASS=acc
+      - STREAM_NAME=events
+      - NUM_CONSUMERS=10
+      - CONSUMER_LIFETIME_MS=5000
+      - RECONNECT_DELAY_MS=100
+      - JS_DOMAIN=hub
+    networks:
+      - nats-cluster
+    depends_on:
+      - gw-b-0
+      - gw-b-1
+      - gw-b-2
+      - gw-b-3
+      - gw-b-4
+    restart: unless-stopped
+
+  consumer-simulator-gw-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    container_name: consumer-simulator-gw-2
+    environment:
+      - NATS_URL=nats://gw-b-1:4222
+      - NATS_USER=acc
+      - NATS_PASS=acc
+      - STREAM_NAME=events
+      - NUM_CONSUMERS=10
+      - CONSUMER_LIFETIME_MS=5000
+      - RECONNECT_DELAY_MS=100
+      - JS_DOMAIN=hub
+    networks:
+      - nats-cluster
+    depends_on:
+      - gw-b-0
+      - gw-b-1
+      - gw-b-2
+      - gw-b-3
+      - gw-b-4
+    restart: unless-stopped
+
+  # ============================================
+  # UTILITIES
+  # ============================================
+  nats-box:
+    image: natsio/nats-box:latest
+    container_name: nats-box
+    command: sleep infinity
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - gw-b-0
+
+  metrics-collector:
+    image: curlimages/curl:latest
+    container_name: metrics-collector
+    entrypoint: /bin/sh
+    command: -c "/scripts/collect-metrics.sh"
+    volumes:
+      - ./collect-metrics.sh:/scripts/collect-metrics.sh:ro
+    networks:
+      - nats-cluster
+    depends_on:
+      - nats-0
+      - gw-b-0
+
+volumes:
+  nats-0-data:
+  nats-1-data:
+  nats-2-data:
+  nats-3-data:
+  nats-4-data:
+  gw-b-0-data:
+  gw-b-1-data:
+  gw-b-2-data:
+  gw-b-3-data:
+  gw-b-4-data:
+  leaf-1-data:
+  leaf-2-data:
+  leaf-3-data:
+
+networks:
+  nats-cluster:
+    driver: bridge

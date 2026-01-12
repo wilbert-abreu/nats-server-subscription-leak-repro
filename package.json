@@ -1,0 +1,10 @@
+{
+  "name": "subscription-leak-repro",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "bun run simulator.ts"
+  },
+  "dependencies": {
+    "nats": "^2.18.0"
+  }
+}
